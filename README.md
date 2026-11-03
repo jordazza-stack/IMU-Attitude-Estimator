@@ -1,44 +1,33 @@
-# IMU Attitude Estimator
+IMU Attitude Estimator
 
 Real-time 3D orientation estimation from raw IMU data using sensor fusion: complementary filter → Kalman filter → quaternions.
 
-> **Status:** 🚧 In progress. Complementary filter implemented in MATLAB (Fall 2026); Kalman filter and dedicated hardware next.
+> In progress. Complementary filter implemented in MATLAB (Fall 2026)
 
----
-
-## Overview
+Overview
 
 An inertial measurement unit (IMU) contains a gyroscope and an accelerometer, and sometimes a magnetometer. None of them gives a good attitude estimate alone:
 
-| Sensor | Strength | Weakness |
-|---|---|---|
-| Accelerometer | No drift (always references gravity) | Noisy; corrupted by motion |
-| Gyroscope | Smooth, fast response | Drifts as integration error builds up |
-| Magnetometer | Gives heading (yaw) | Sensitive to nearby metal and electronics |
+
+Accelerometer: No drift (always references gravity), Noisy; corrupted by motion.
+Gyroscope: Smooth, fast response, Drifts as integration error builds up.
+Magnetometer: Gives heading (yaw), Sensitive to nearby metal and electronics.
 
 This project fuses them to get an estimate that is both smooth and drift-free. It is the same problem a spacecraft's attitude determination system (ADCS) solves, and it is the foundation for my later projects: a reaction wheel testbed and an ISS pointer.
 
----
 
-## Method
 
-### 1. Accelerometer tilt
-Roll and pitch from the gravity vector:
+Method
 
-$$\phi_{acc} = \operatorname{atan2}(a_y,\ a_z), \qquad \theta_{acc} = \operatorname{atan2}\!\left(-a_x,\ \sqrt{a_y^2 + a_z^2}\right)$$
+1. Accelerometer tilt
+Roll and pitch from the gravity vector
 
-### 2. Gyro integration
+2. Gyro integration
+   
+Complementary filter
+High-pass the gyro, low-pass the accelerometer
 
-$$\phi_{gyro,k} = \phi_{k-1} + \omega_x \,\Delta t$$
-
-### 3. Complementary filter
-High-pass the gyro, low-pass the accelerometer:
-
-$$\phi_k = \alpha\left(\phi_{k-1} + \omega_x \Delta t\right) + (1-\alpha)\,\phi_{acc,k}$$
-
-with $\alpha \approx 0.98$.
-
-### 4. Kalman filter *(next)*
+4. Kalman filter
 Treat attitude and gyro bias as states, propagate with the gyro, and correct with the accelerometer using the optimal gain.
 
 ### 5. Quaternions *(planned)*
